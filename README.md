@@ -1,3 +1,3 @@
-# InfoSmart-Solutions
-Plano de Implantação para empresa InfoSmart Solutions
+# BitSecure-Technologies
+Plano de Implementação de um sistema interno para empresa BitSecure-Technologies
 teste
