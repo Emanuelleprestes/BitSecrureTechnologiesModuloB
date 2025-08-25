@@ -14,19 +14,21 @@ type Server struct {
 }
 
 func helloword(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
 	fmt.Println(w.Write([]byte("helloword")))
 }
 
-func Newserver(ip string, conn *sql.Conn) Server {
-	return Server{
+func Newserver(ip string, conn *sql.Conn) *Server {
+	return &Server{
 		ip,
 		conn,
 	}
 }
 
 func (s *Server) Run() error {
-	r := chi.NewRouter()
+	r := chi.NewMux()
 	r.Get("/", helloword)
 	http.HandleFunc("/", helloword)
+	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)
 	return http.ListenAndServe(s.ip, r)
 }
