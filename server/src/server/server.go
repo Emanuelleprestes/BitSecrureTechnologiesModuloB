@@ -18,6 +18,12 @@ func helloword(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w.Write([]byte("helloword")))
 }
 
+func (s *Server) config() *chi.Mux {
+	r := chi.NewMux()
+	r.Get("/", helloword)
+	return r
+}
+
 func Newserver(ip string, conn *sql.Conn) *Server {
 	return &Server{
 		ip,
@@ -26,9 +32,7 @@ func Newserver(ip string, conn *sql.Conn) *Server {
 }
 
 func (s *Server) Run() error {
-	r := chi.NewMux()
-	r.Get("/", helloword)
-	http.HandleFunc("/", helloword)
+	r := s.config()
 	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)
 	return http.ListenAndServe(s.ip, r)
 }

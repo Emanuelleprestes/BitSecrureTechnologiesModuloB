@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server"
+	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server" // pegando o modulo do projeto
 )
 
 // essa função vai ser responsavel por configuras algumas coisas basica

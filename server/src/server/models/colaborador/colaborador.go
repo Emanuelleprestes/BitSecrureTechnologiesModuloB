@@ -3,11 +3,11 @@ package colaborador
 import "github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/cargo"
 
 type Colaborador struct {
-	id              int
-	nome            string
-	cpf             string
-	email_coportivo string
-	telefone        string
+	id              int    `json:""`
+	nome            string `json:""`
+	cpf             string `json:""`
+	email_coportivo string `json:""`
+	telefone        string `json:""`
 	cargo           *cargo.Cargo
 }
 
