@@ -18,9 +18,34 @@ func helloword(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w.Write([]byte("helloword")))
 }
 
+// acho que vou mapear as rotas e depois so voltar o mux mesmo para ficar mais organizado
+
+func (s *Server) routesforcolabolador(r *chi.Mux) {
+	r.Route("/colaboradores/", func(r chi.Router) {
+		r.Get("/", Getcolaboladores)
+		r.Get("/{name}", GetcolaboladoresByName)
+		r.Post("/", Save)
+	})
+}
+func (s *Server) routerforcargos(r *chi.Mux)         {}
+func (s *Server) routerforderpartamento(r *chi.Mux)  {}
+func (s *Server) routerfordocumento(r *chi.Mux)      {}
+func (s *Server) routerfortarefa(r *chi.Mux)         {}
+func (s *Server) routerforponto(r *chi.Mux)          {}
+func (s *Server) routerforbackup(r *chi.Mux)         {}
+func (s *Server) routerforautentificacao(r *chi.Mux) {}
+
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
 	r.Get("/", helloword)
+	s.routesforcolabolador(r)
+	s.routerforautentificacao(r)
+	s.routerforbackup(r)
+	s.routerforcargos(r)
+	s.routerforderpartamento(r)
+	s.routerfordocumento(r)
+	s.routerforponto(r)
+	s.routerfortarefa(r)
 	return r
 }
 
