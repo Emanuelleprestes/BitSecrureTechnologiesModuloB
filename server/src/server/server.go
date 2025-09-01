@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// a declaração do objeto
 type Server struct {
 	ip   string
 	conn *sql.Conn
@@ -18,8 +19,9 @@ func helloword(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w.Write([]byte("helloword")))
 }
 
+// rota /colaboradores
 // acho que vou mapear as rotas e depois so voltar o mux mesmo para ficar mais organizado
-
+// função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
 	r.Route("/colaboradores/", func(r chi.Router) {
 		r.Get("/", Getcolaboladores)
@@ -27,14 +29,37 @@ func (s *Server) routesforcolabolador(r *chi.Mux) {
 		r.Post("/", Save)
 	})
 }
-func (s *Server) routerforcargos(r *chi.Mux)         {}
-func (s *Server) routerforderpartamento(r *chi.Mux)  {}
-func (s *Server) routerfordocumento(r *chi.Mux)      {}
-func (s *Server) routerfortarefa(r *chi.Mux)         {}
-func (s *Server) routerforponto(r *chi.Mux)          {}
-func (s *Server) routerforbackup(r *chi.Mux)         {}
+
+// rotas /cargo
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerforcargos(r *chi.Mux) {}
+
+// rotas /derpartamento
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerforderpartamento(r *chi.Mux) {}
+
+// rotas /documento
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerfordocumento(r *chi.Mux) {}
+
+// rotas /tarefa
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerfortarefa(r *chi.Mux) {}
+
+// rotas /ponto
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerforponto(r *chi.Mux) {}
+
+// rotas /backup
+// função que vai configurar as rotass, middleware e as handle functions para a mesma
+func (s *Server) routerforbackup(r *chi.Mux) {}
+
+// rotas /autentificação
+// função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routerforautentificacao(r *chi.Mux) {}
 
+// função que chama as funções para configurar as routas para o *chi.Mux
+// de modo essa função aqui não ficar muito grande
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
 	r.Get("/", helloword)
@@ -49,6 +74,7 @@ func (s *Server) config() *chi.Mux {
 	return r
 }
 
+// função que inicia um objeto e volta a referencia dele
 func Newserver(ip string, conn *sql.Conn) *Server {
 	return &Server{
 		ip,
@@ -56,6 +82,8 @@ func Newserver(ip string, conn *sql.Conn) *Server {
 	}
 }
 
+// função que inicia o ouvinte para a porta (8080,80 e etc) para as coneçoes http/https
+// atualmente so configurado para a coneção http
 func (s *Server) Run() error {
 	r := s.config()
 	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)

@@ -9,11 +9,6 @@ type (
 )
 
 func Teste2(w writer, r resquest)
-func Getcolaboladores(w writer, r resquest) {
-}
-
-func Save(w writer, r resquest) {
-}
-
-func GetcolaboladoresByName(w writer, r resquest) {
-}
+func Getcolaboladores(w writer, r resquest)
+func Save(w writer, r resquest)
+func GetcolaboladoresByName(w writer, r resquest)
