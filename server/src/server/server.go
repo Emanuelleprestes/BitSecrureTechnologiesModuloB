@@ -32,31 +32,45 @@ func (s *Server) routesforcolabolador(r *chi.Mux) {
 
 // rotas /cargo
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerforcargos(r *chi.Mux) {}
+func (s *Server) routerforcargos(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /derpartamento
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerforderpartamento(r *chi.Mux) {}
+func (s *Server) routerforderpartamento(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /documento
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerfordocumento(r *chi.Mux) {}
+func (s *Server) routerfordocumento(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /tarefa
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerfortarefa(r *chi.Mux) {}
+func (s *Server) routerfortarefa(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /ponto
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerforponto(r *chi.Mux) {}
+func (s *Server) routerforponto(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /backup
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerforbackup(r *chi.Mux) {}
+func (s *Server) routerforbackup(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // rotas /autentificação
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
-func (s *Server) routerforautentificacao(r *chi.Mux) {}
+func (s *Server) routerforautentificacao(_ *chi.Mux) {
+	fmt.Println("nada")
+}
 
 // função que chama as funções para configurar as routas para o *chi.Mux
 // de modo essa função aqui não ficar muito grande
