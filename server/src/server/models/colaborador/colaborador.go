@@ -8,6 +8,7 @@ type Colaborador struct {
 	cpf             string `json:""`
 	email_coportivo string `json:""`
 	telefone        string `json:""`
+	habilidades     string `json:""`
 	cargo           *cargo.Cargo
 }
 
