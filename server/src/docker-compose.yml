@@ -1,17 +1,20 @@
 version: "3.9"
 services:
-  mariadb:
-    image: mariadb:11.3
-    container_name: my_mariadb
+  mysql:
+    image: mysql:8.0
+    container_name: my_mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: sys
+      MYSQL_DATABASE: empresa
       MYSQL_USER: tiago
       MYSQL_PASSWORD: 123
     ports:
       - "3306:3306"
+    command: --default-authentication-plugin=caching_sha2_password
     volumes:
-      - ./db:/var/lib/msql
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
 volumes:
-  mariadb_data:
+  mysql_data:
