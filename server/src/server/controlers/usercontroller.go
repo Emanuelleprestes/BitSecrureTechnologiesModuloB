@@ -1,12 +1,15 @@
 package controlers
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/colaborador"
+	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/repositorios"
 )
 
 type Colaboradorcontroller struct {
@@ -92,6 +95,36 @@ func iscpf(cpf string) bool {
 	}
 
 	return dv1 == d[9] && dv2 == d[10]
+}
+
+func (c *Colaboradorcontroller) Getall() (*[]colaborador.Colaborador, error) {
+	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return userrepo.Getall(ctx)
+}
+
+// por vai so isso para validação das tabelas
+func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
+	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := userrepo.Save(ctx, colab)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Colaboradorcontroller) Update(colab *colaborador.Colaborador) error {
+	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := userrepo.Update(ctx, *colab)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Colaboradorcontroller) validacao(colab *colaborador.Colaborador) error {

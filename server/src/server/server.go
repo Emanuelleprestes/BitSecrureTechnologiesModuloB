@@ -12,8 +12,9 @@ import (
 
 // a declaração do objeto
 type Server struct {
-	ip   string
-	conn *sql.Conn
+	ip     string
+	conn   *sql.DB
+	handle *Handlers
 }
 
 func funchandcle(
@@ -37,11 +38,11 @@ func funchandcle(
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
 	r.Route("/colaboradores", func(r chi.Router) {
-		r.Get("/", Getcolaboladores)
-		r.Get("/{name}", GetcolaboladoresByName)
-		r.Post("/", funchandcle(Savecola, "gestor"))
-		r.Put("/", Savecola)
-		r.Delete("/{name}", funchandcle(Deletecolaborador, "gestor"))
+		r.Get("/", s.handle.Getcolaboladores)
+		r.Get("/{name}", s.handle.GetcolaboladoresByName)
+		r.Post("/", funchandcle(s.handle.Savecola, "gestor"))
+		r.Put("/", s.handle.Updatecolaborador)
+		r.Delete("/{name}", funchandcle(s.handle.Deletecolaborador, "gestor"))
 	})
 }
 
@@ -110,10 +111,12 @@ func (s *Server) config() *chi.Mux {
 }
 
 // função que inicia um objeto e volta a referencia dele
-func Newserver(ip string, conn *sql.Conn) *Server {
+func Newserver(ip string, conn *sql.DB) *Server {
+	Handlers := Handlers{conn: conn}
 	return &Server{
 		ip,
 		conn,
+		&Handlers,
 	}
 }
 

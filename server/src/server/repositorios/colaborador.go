@@ -13,8 +13,7 @@ import (
 type Colab = colaborador.Colaborador
 
 type ColaboradorRepo struct {
-	db  *sql.DB
-	col *Colab
+	db *sql.DB
 }
 
 func NewColaboradorRepo(db *sql.DB) *ColaboradorRepo {
@@ -27,7 +26,7 @@ func (r *ColaboradorRepo) Get(ctx context.Context, id int) (Colab, error) {
 	query := `
 		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
 		FROM colaborador
-		WHERE id_colaborador = ?
+		WHERE nome = ?
 	`
 	err := r.db.QueryRowContext(ctx, query, id).
 		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
@@ -40,22 +39,71 @@ func (r *ColaboradorRepo) Get(ctx context.Context, id int) (Colab, error) {
 	return c, nil
 }
 
+func (r *ColaboradorRepo) Getbyname(ctx context.Context, name string) (Colab, error) {
+	c := Colab{}
+	query := `
+		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
+		FROM colaborador
+		WHERE nome = ?
+	`
+	err := r.db.QueryRowContext(ctx, query, name).
+		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c, nil
+		}
+		return c, fmt.Errorf("erro ao buscar colaborador: %w", err)
+	}
+	return c, nil
+}
+
+func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
+	query := `
+        SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
+        FROM colaborador
+    `
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar colaboradores: %w", err)
+	}
+	defer rows.Close() // importante: fecha o cursor
+
+	var colaboradores []Colab
+	for rows.Next() {
+		var c Colab
+		err := rows.Scan(
+			&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor,
+			&c.Status, &c.Email, &c.Ramal, &c.Habilidades,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao escanear colaborador: %w", err)
+		}
+		colaboradores = append(colaboradores, c)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("erro ao iterar colaboradores: %w", err)
+	}
+
+	return &colaboradores, nil
+}
+
 // Save insere um novo colaborador
-func (r *ColaboradorRepo) Save(ctx context.Context) (Colab, error) {
+func (r *ColaboradorRepo) Save(ctx context.Context, c *colaborador.Colaborador) (Colab, error) {
 	query := `
 		INSERT INTO colaborador (cpf, nome, cargo, setor, status, email, ramal, habilidades)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	result, err := r.db.ExecContext(ctx, query,
-		r.col.CPF, r.col.Nome, r.col.Cargo, r.col.Setor,
-		r.col.Status, r.col.Email, r.col.Ramal, r.col.Habilidades,
+		c.CPF, c.Nome, c.Cargo, c.Setor,
+		c.Status, c.Email, c.Ramal, c.Habilidades,
 	)
 	if err != nil {
-		return Colab{}, fmt.Errorf("erro ao salvar colaborador: %w", err)
+		return Colab{}, fmt.Errorf("erro ao salvacaborador: %w", err)
 	}
 	id, _ := result.LastInsertId()
-	r.col.ID = int(id)
-	return *r.col, nil
+	c.ID = int(id)
+	return *c, nil
 }
 
 // Update atualiza um colaborador
@@ -70,8 +118,7 @@ func (r *ColaboradorRepo) Update(ctx context.Context, c Colab) (Colab, error) {
 		c.Email, c.Ramal, c.Habilidades, c.ID,
 	)
 	if err != nil {
-		return c, fmt.Errorf("erro ao atualizar colaborador: %w", err)
+		return c, fmt.Errorf("erro ao atualizacaborador: %w", err)
 	}
 	return c, nil
 }
-

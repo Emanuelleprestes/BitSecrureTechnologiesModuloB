@@ -6,12 +6,10 @@ import (
 	"fmt"
 
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/departamento"
-	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/projeto"
 )
 
 type (
 	depto = departamento.Departamento
-	proj  = projeto.Projeto
 )
 
 type DepartamentoRepo struct {
@@ -42,7 +40,7 @@ func (r *DepartamentoRepo) Get(ctx context.Context, projetoID int) (depto, error
 	if err != nil {
 		return d, fmt.Errorf("erro ao buscar projeto: %w", err)
 	}
-	d.Projeto = &projData
+	d.Projeto = projData
 
 	// Buscar membros da equipe
 	query := "SELECT id_colaborador FROM projetoequipe WHERE id_projeto=?"
@@ -118,4 +116,3 @@ func (r *DepartamentoRepo) RemoveMember(
 	_, err := r.db.ExecContext(ctx, query, projetoID, colaboradorID)
 	return err
 }
-
