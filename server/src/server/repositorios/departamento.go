@@ -6,30 +6,45 @@ import (
 	"fmt"
 
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/departamento"
+	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/projeto"
 )
 
-type depto = departamento.Departamento
+type (
+	depto = departamento.Departamento
+	proj  = projeto.Projeto
+)
 
 type DepartamentoRepo struct {
 	db              *sql.DB
 	colaboradorRepo *ColaboradorRepo
+	projetoRepo     *ProjetoRepo
 }
 
 // NewDepartamentoRepo cria um novo repositório de Departamento
-func NewDepartamentoRepo(db *sql.DB, colaboradorRepo *ColaboradorRepo) *DepartamentoRepo {
+func NewDepartamentoRepo(
+	db *sql.DB,
+	colaboradorRepo *ColaboradorRepo,
+	projetoRepo *ProjetoRepo,
+) *DepartamentoRepo {
 	return &DepartamentoRepo{
 		db:              db,
 		colaboradorRepo: colaboradorRepo,
+		projetoRepo:     projetoRepo,
 	}
 }
 
 // Get retorna um departamento pelo ID do projeto
 func (r *DepartamentoRepo) Get(ctx context.Context, projetoID int) (depto, error) {
-	d := depto{
-		ID: projetoID,
-	}
+	d := depto{}
 
-	// Busca os colaboradores do projeto
+	// Buscar o projeto relacionado
+	projData, err := r.projetoRepo.Get(projetoID)
+	if err != nil {
+		return d, fmt.Errorf("erro ao buscar projeto: %w", err)
+	}
+	d.Projeto = &projData
+
+	// Buscar membros da equipe
 	query := "SELECT id_colaborador FROM projetoequipe WHERE id_projeto=?"
 	rows, err := r.db.QueryContext(ctx, query, projetoID)
 	if err != nil {
@@ -51,8 +66,7 @@ func (r *DepartamentoRepo) Get(ctx context.Context, projetoID int) (depto, error
 		d.Membros = append(d.Membros, &colab)
 	}
 
-	// Opcional: buscar o gestor (se houver uma regra ou campo específico)
-	// Exemplo: primeiro colaborador da lista é gestor
+	// Definir gestor (exemplo: primeiro colaborador da lista)
 	if len(d.Membros) > 0 {
 		d.Gestor = d.Membros[0]
 	}
@@ -62,7 +76,6 @@ func (r *DepartamentoRepo) Get(ctx context.Context, projetoID int) (depto, error
 
 // GetAll retorna todos os departamentos (todos os projetos com suas equipes)
 func (r *DepartamentoRepo) GetAll(ctx context.Context) ([]depto, error) {
-	// Busca todos os projetos que possuem equipe
 	query := "SELECT DISTINCT id_projeto FROM projetoequipe"
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -105,3 +118,4 @@ func (r *DepartamentoRepo) RemoveMember(
 	_, err := r.db.ExecContext(ctx, query, projetoID, colaboradorID)
 	return err
 }
+

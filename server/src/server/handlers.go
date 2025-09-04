@@ -11,15 +11,15 @@ type (
 	resquest = *http.Request
 )
 
-func Teste2(w writer, r resquest) {
-	fmt.Println(w.Write([]byte("")))
-}
-
 func Getcolaboladores(w writer, r resquest) {
 	fmt.Println(w.Write([]byte("")))
 }
 
-func Save(w writer, r resquest) {
+func Savecola(w writer, r resquest) {
+	fmt.Println(w.Write([]byte("")))
+}
+
+func Deletecolaborador(w writer, r resquest) {
 	fmt.Println(w.Write([]byte("")))
 }
 

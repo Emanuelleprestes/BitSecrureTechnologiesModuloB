@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -14,26 +16,45 @@ type Server struct {
 	conn *sql.Conn
 }
 
-func helloword(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
-	fmt.Println(w.Write([]byte("helloword")))
+func funchandcle(
+	f http.HandlerFunc,
+	privilegio string,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// aqui você faz a validação do "privilegio"
+		if privilegio != "gestor" {
+			http.Error(w, "acesso negado", http.StatusForbidden)
+			return
+		}
+
+		// se OK, chama o handler original
+		f(w, r)
+	}
 }
 
 // rota /colaboradores
 // acho que vou mapear as rotas e depois so voltar o mux mesmo para ficar mais organizado
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
-	r.Route("/colaboradores/", func(r chi.Router) {
+	r.Route("/colaboradores", func(r chi.Router) {
 		r.Get("/", Getcolaboladores)
 		r.Get("/{name}", GetcolaboladoresByName)
-		r.Post("/", Save)
+		r.Post("/", funchandcle(Savecola, "gestor"))
+		r.Put("/", Savecola)
+		r.Delete("/{name}", funchandcle(Deletecolaborador, "gestor"))
 	})
 }
 
+// json de array ou json so a estrutura em si
+// status: 200
 // rotas /cargo
 // função que vai configurar as rotass, middleware e as handle functions para a mesma
-func (s *Server) routerforcargos(_ *chi.Mux) {
-	fmt.Println("nada")
+func (s *Server) routerforcargos(r *chi.Mux) {
+	r.Route("/cargo", func(r chi.Router) {
+		r.Get("/", nil)
+		r.Get("/{nome}", nil)
+		r.Post("/", nil)
+	})
 }
 
 // rotas /derpartamento
@@ -76,7 +97,7 @@ func (s *Server) routerforautentificacao(_ *chi.Mux) {
 // de modo essa função aqui não ficar muito grande
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
-	r.Get("/", helloword)
+
 	s.routesforcolabolador(r)
 	s.routerforautentificacao(r)
 	s.routerforbackup(r)
@@ -96,10 +117,15 @@ func Newserver(ip string, conn *sql.Conn) *Server {
 	}
 }
 
+var sessionManager *scs.SessionManager
+
 // função que inicia o ouvinte para a porta (8080,80 e etc) para as coneçoes http/https
 // atualmente so configurado para a coneção http
 func (s *Server) Run() error {
 	r := s.config()
+	sessionManager = scs.New()
+	sessionManager.Lifetime = 24 * time.Hour
+
 	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)
-	return http.ListenAndServe(s.ip, r)
+	return http.ListenAndServe(s.ip, sessionManager.LoadAndSave(r))
 }

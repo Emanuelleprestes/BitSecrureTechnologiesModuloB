@@ -28,15 +28,16 @@ func NewProjetoRepo(db *sql.DB) (*ProjetoRepo, error) {
 }
 
 // Get retorna um projeto pelo ID
-func (r *ProjetoRepo) Get(id int) proj {
+func (r *ProjetoRepo) Get(id int) (*proj, error) {
 	p := proj{}
 	query := "SELECT id_projeto, nome, tipo, status, progresso, responsavel, descricao FROM projeto WHERE id_projeto=?"
 	err := r.db.QueryRow(query, id).
 		Scan(&p.ID, &p.Nome, &p.Tipo, &p.Status, &p.Progresso, &p.Responsavel, &p.Descricao)
 	if err != nil {
 		fmt.Println("Erro ao buscar projeto:", err)
+		return nil, err
 	}
-	return p
+	return &p, nil
 }
 
 // GetAll retorna todos os projetos
