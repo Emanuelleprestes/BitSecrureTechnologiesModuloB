@@ -66,7 +66,7 @@ func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar colaboradores: %w", err)
 	}
-	defer rows.Close() // importante: fecha o cursor
+	defer fmt.Println(rows.Close()) // importante: fecha o cursor
 
 	var colaboradores []Colab
 	for rows.Next() {

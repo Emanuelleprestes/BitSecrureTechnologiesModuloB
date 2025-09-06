@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/colaborador"
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/repositorios"
 )
@@ -20,6 +22,7 @@ func NewColaboradorcontroller(c *sql.DB) *Colaboradorcontroller {
 	return &Colaboradorcontroller{conn: c}
 }
 
+// 0 seria o null para inteiro, e nil seria o null para referencia
 func (c *Colaboradorcontroller) Newuser(
 	cpf, nome, cargo, setor, status, email, ramal, habilidades string,
 ) (*colaborador.Colaborador, error) {
@@ -76,7 +79,7 @@ func iscpf(cpf string) bool {
 
 	// Calcula 1º dígito verificador
 	sum := 0
-	for i := 0; i < 9; i++ {
+	for i := range 9 {
 		sum += d[i] * (10 - i)
 	}
 	dv1 := 11 - (sum % 11)
@@ -86,7 +89,7 @@ func iscpf(cpf string) bool {
 
 	// Calcula 2º dígito verificador
 	sum = 0
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		sum += d[i] * (11 - i)
 	}
 	dv2 := 11 - (sum % 11)
@@ -109,11 +112,18 @@ func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	userrepo := repositorios.NewColaboradorRepo(c.conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := userrepo.Save(ctx, colab)
+	passwd := colab.Senha
+	hash, err := bcrypt.GenerateFromPassword(passwd, bcrypt.DefaultCost)
+	colab.Senha = hash
+	_, err = userrepo.Save(ctx, colab)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (c *Colaboradorcontroller) Login(email, pass string) bool {
+	return false
 }
 
 func (c *Colaboradorcontroller) Update(colab *colaborador.Colaborador) error {

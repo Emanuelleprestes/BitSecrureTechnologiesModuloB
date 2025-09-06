@@ -23,6 +23,7 @@ func funchandcle(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// aqui você faz a validação do "privilegio"
+		// aqui a validação vai ser feita via sessao do usuario
 		if privilegio != "gestor" {
 			http.Error(w, "acesso negado", http.StatusForbidden)
 			return
