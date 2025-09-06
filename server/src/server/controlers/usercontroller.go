@@ -113,8 +113,11 @@ func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	passwd := colab.Senha
-	hash, err := bcrypt.GenerateFromPassword(passwd, bcrypt.DefaultCost)
-	colab.Senha = hash
+	hash, err := bcrypt.GenerateFromPassword([]byte(passwd), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	colab.Senha = string(hash)
 	_, err = userrepo.Save(ctx, colab)
 	if err != nil {
 		return err
