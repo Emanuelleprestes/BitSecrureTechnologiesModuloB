@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -128,7 +129,8 @@ var sessionManager *scs.SessionManager
 func (s *Server) Run() error {
 	r := s.config()
 	sessionManager = scs.New()
-	sessionManager.Lifetime = 24 * time.Hour
+	sessionManager.Store = memstore.New()
+	sessionManager.Lifetime = 2 * time.Hour
 
 	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)
 	return http.ListenAndServe(s.ip, sessionManager.LoadAndSave(r))

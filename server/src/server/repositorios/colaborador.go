@@ -39,6 +39,24 @@ func (r *ColaboradorRepo) Get(ctx context.Context, id int) (Colab, error) {
 	return c, nil
 }
 
+func (r *ColaboradorRepo) Getbyemail(ctx context.Context, email string) (Colab, error) {
+	c := Colab{}
+	query := `
+		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
+		FROM colaborador
+		WHERE email = ?
+	`
+	err := r.db.QueryRowContext(ctx, query, email).
+		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c, nil
+		}
+		return c, fmt.Errorf("erro ao buscar colaborador: %w", err)
+	}
+	return c, nil
+}
+
 func (r *ColaboradorRepo) Getbyname(ctx context.Context, name string) (Colab, error) {
 	c := Colab{}
 	query := `
