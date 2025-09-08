@@ -17,8 +17,11 @@ func init() {
 	fmt.Println("teste")
 }
 
+func createUseradmin(c *sql.DB) {
+}
+
 func ConnectMariaDB() (*sql.DB, error) {
-	dsn := "tiago:123@tcp(127.0.0.1:3306)/sys?parseTime=true"
+	dsn := "tiago:123@tcp(127.0.0.1:3306)/empresa?parseTime=true"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao abrir conexão: %w", err)
@@ -33,7 +36,7 @@ func ConnectMariaDB() (*sql.DB, error) {
 	db.SetMaxOpenConns(10) // máximo de conexões abertas
 	db.SetMaxIdleConns(5)  // máximo de conexões inativas
 	db.SetConnMaxLifetime(time.Hour)
-
+	createUseradmin(db)
 	return db, nil
 }
 

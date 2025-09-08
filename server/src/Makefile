@@ -1,6 +1,6 @@
-COMPOSE = docker compose -f docker-compose.yml
+COMPOSE = docker compose
 
-.PHONY: up down start stop logs ps exec bash
+.PHONY: up down down-v start stop logs ps exec bash sh build restart rebuild
 
 up:
 	$(COMPOSE) up -d
@@ -9,7 +9,7 @@ down:
 	$(COMPOSE) down
 
 down-v:
-	$(COMPOSE) down -v   # remove também os volumes (apaga os dados do banco)
+	$(COMPOSE) down -v   ## ⚠️ Remove também volumes (apaga os dados!)
 
 start:
 	$(COMPOSE) start
@@ -24,7 +24,14 @@ ps:
 	$(COMPOSE) ps
 
 exec:
-	$(COMPOSE) exec mariadb mariadb -u$${MYSQL_USER:-root} -p$${MYSQL_PASSWORD:-rootpass} $${MYSQL_DATABASE:-sys}
+	$(COMPOSE) exec mariadb mysql -uroot -prootpass sys
 
 bash:
-	$(COMPOSE) exec mariadb bash
+	$(COMPOSE) exec mariadb bash || $(COMPOSE) exec mariadb sh
+
+rebuild:
+	$(COMPOSE) build --no-cache
+
+restart:
+	$(MAKE) stop
+	$(MAKE) up

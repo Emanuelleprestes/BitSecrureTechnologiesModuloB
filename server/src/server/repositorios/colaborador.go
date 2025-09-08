@@ -26,7 +26,7 @@ func (r *ColaboradorRepo) Get(ctx context.Context, id int) (Colab, error) {
 	query := `
 		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
 		FROM colaborador
-		WHERE nome = ?
+		WHERE id = ?
 	`
 	err := r.db.QueryRowContext(ctx, query, id).
 		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
@@ -42,12 +42,12 @@ func (r *ColaboradorRepo) Get(ctx context.Context, id int) (Colab, error) {
 func (r *ColaboradorRepo) Getbyemail(ctx context.Context, email string) (Colab, error) {
 	c := Colab{}
 	query := `
-		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
+		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades, senha
 		FROM colaborador
-		WHERE email = ?
+		WHERE nome = ?
 	`
 	err := r.db.QueryRowContext(ctx, query, email).
-		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
+		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades, &c.Senha)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c, nil
@@ -60,12 +60,12 @@ func (r *ColaboradorRepo) Getbyemail(ctx context.Context, email string) (Colab, 
 func (r *ColaboradorRepo) Getbyname(ctx context.Context, name string) (Colab, error) {
 	c := Colab{}
 	query := `
-		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
+		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades, senha
 		FROM colaborador
 		WHERE nome = ?
 	`
 	err := r.db.QueryRowContext(ctx, query, name).
-		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades)
+		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades, &c.Senha)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c, nil
@@ -84,8 +84,8 @@ func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar colaboradores: %w", err)
 	}
-	defer fmt.Println(rows.Close()) // importante: fecha o cursor
-
+	fmt.Println(rows)
+	defer rows.Close() // importante: fecha o cursor
 	var colaboradores []Colab
 	for rows.Next() {
 		var c Colab
