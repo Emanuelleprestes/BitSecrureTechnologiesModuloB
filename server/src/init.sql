@@ -98,6 +98,7 @@ CREATE TABLE registroponto (
 -- ==========================
 
 -- Colaboradores com hash bcrypt fictício (use password_hash no app real)
+
 INSERT INTO colaborador (nome, cpf, cargo, setor, senha, status, email, ramal, habilidades) VALUES
 ('José Silva', '111.111.111-11', 'Desenvolvedor', 'TI', '$2y$10$abcdefghijklmnopqrstuvABCDEFGHIJKLMNOPQRSTUV123456', 'Ativo', 'jose@empresa.com', '101', 'PHP, MySQL'),
 ('Maria Souza', '222.222.222-22', 'Analista de Segurança', 'Segurança', '$2y$10$mnopqrABCDEFGHIJKLMNopqrstuvWXYZabcdefghijkl12345', 'Ativo', 'maria@empresa.com', '102', 'Red Team, Pentest'),

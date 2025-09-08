@@ -9,6 +9,12 @@ import (
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/controlers"
 )
 
+type UserSessao struct {
+	ID    int    `json:"id"`
+	Nome  string `json:"nome"`
+	Cargo string `json:"cargo"`
+}
+
 // aqui vai ficar as funçoes que vao ir para para as rotas
 type (
 	writer   = http.ResponseWriter
@@ -46,12 +52,19 @@ func (h *Handlers) Loginbyemail(w writer, r resquest) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	sessionManager.Put(r.Context(), "user", user)
+	usersessao := UserSessao{
+		ID:    user.ID,
+		Nome:  user.Nome,
+		Cargo: user.Cargo,
+	}
+	sessionManager.Put(r.Context(), "user", usersessao)
+	sessionID := sessionManager.Token(r.Context())
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Println(json.NewEncoder(w).Encode(map[string]string{
+	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "ok",
 		"message": "Login efetuado com sucesso",
-	}))
+		"session": sessionID,
+	})
 }
 
 func (h *Handlers) Getcolaboladores(w writer, r resquest) {
