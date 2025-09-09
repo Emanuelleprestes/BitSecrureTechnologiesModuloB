@@ -110,7 +110,7 @@ func (s *Server) routerforautentificacao(_ *chi.Mux) {
 // de modo essa função aqui não ficar muito grande
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
-	r.Post("/login", s.handle.Loginbyemail)
+	r.Post("/login", s.handle.Login)
 	s.routesforcolabolador(r)
 	s.routerforautentificacao(r)
 	s.routerforbackup(r)

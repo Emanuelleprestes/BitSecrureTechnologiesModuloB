@@ -26,27 +26,25 @@ type Handlers struct {
 	conn *sql.DB
 }
 
-func (h *Handlers) Loginbyemail(w writer, r resquest) {
+func (h *Handlers) Login(w writer, r resquest) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
 		return
 	}
-
 	var creds struct {
-		Email string `json:"email"`
+		Value string `json:"value"`
 		Senha string `json:"senha"`
 	}
-
-	// decodifica o JSON do corpo
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
 		return
 	}
 	usercontroller := controlers.NewColaboradorcontroller(h.conn)
-	user, err := usercontroller.Loginbyemail(creds.Email, creds.Senha)
+	var user *colaborador.Colaborador
+	user, err = usercontroller.Login(creds.Value, creds.Senha)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 	usersessao := UserSessao{

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -142,7 +143,33 @@ func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	return nil
 }
 
-func (c *Colaboradorcontroller) Loginbyemail(email, pass string) (*colaborador.Colaborador, error) {
+func (c *Colaboradorcontroller) Login(creds, pass string) (*colaborador.Colaborador, error) {
+	if strings.Contains(creds, "@") {
+		return c.loginbyemail(creds, pass)
+	} else {
+		return c.loginbynome(creds, pass)
+	}
+}
+
+func (c *Colaboradorcontroller) loginbynome(nome, pass string) (*colaborador.Colaborador, error) {
+	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	user, err := userrepo.Getbyname(ctx, nome)
+	if err != nil {
+		return nil, fmt.Errorf("usuario não existe: %w", err)
+	}
+	// senha correta: primeiro hash do banco, depois senha digitada
+	err = bcrypt.CompareHashAndPassword([]byte(user.Senha), []byte(pass))
+	if err != nil {
+		return nil, errors.New("senha invalida")
+	}
+
+	return &user, nil
+}
+
+func (c *Colaboradorcontroller) loginbyemail(email, pass string) (*colaborador.Colaborador, error) {
 	userrepo := repositorios.NewColaboradorRepo(c.conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
