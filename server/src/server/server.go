@@ -23,14 +23,24 @@ func funchandcle(
 	privilegio string,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// aqui você faz a validação do "privilegio"
-		// aqui a validação vai ser feita via sessao do usuario
-		if privilegio != "gestor" {
+		val := sessionManager.Get(r.Context(), "user")
+		if val == nil {
+			http.Error(w, "sem permissão para acessar essa página", http.StatusUnauthorized)
+			return
+		}
+
+		userusersessao, ok := val.(UserSessao)
+		if !ok {
+			http.Error(w, "sessão inválida", http.StatusUnauthorized)
+			return
+		}
+
+		if privilegio != userusersessao.Cargo {
 			http.Error(w, "acesso negado", http.StatusForbidden)
 			return
 		}
 
-		// se OK, chama o handler original
+		// se passou nas validações, chama o handler original
 		f(w, r)
 	}
 }
@@ -40,7 +50,7 @@ func funchandcle(
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
 	r.Route("/colaboradores", func(r chi.Router) {
-		r.Get("/", s.handle.Getcolaboladores)
+		r.Get("/", funchandcle(s.handle.Getcolaboladores, "gestor"))
 		r.Get("/{name}", s.handle.GetcolaboladoresByName)
 		r.Post("/", funchandcle(s.handle.Savecola, "gestor"))
 		r.Put("/", s.handle.Updatecolaborador)
@@ -100,7 +110,7 @@ func (s *Server) routerforautentificacao(_ *chi.Mux) {
 // de modo essa função aqui não ficar muito grande
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
-
+	r.Post("/login", s.handle.Loginbyemail)
 	s.routesforcolabolador(r)
 	s.routerforautentificacao(r)
 	s.routerforbackup(r)
@@ -130,8 +140,8 @@ func (s *Server) Run() error {
 	r := s.config()
 	sessionManager = scs.New()
 	sessionManager.Store = memstore.New()
+	sessionManager.Cookie.HttpOnly = true
 	sessionManager.Lifetime = 2 * time.Hour
-
 	fmt.Printf("ip: http://127.0.0.1%s/\n", s.ip)
 	return http.ListenAndServe(s.ip, sessionManager.LoadAndSave(r))
 }

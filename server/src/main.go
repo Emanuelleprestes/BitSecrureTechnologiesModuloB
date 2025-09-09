@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 // tipo conexão com o banco de dados que vai ser passado como referencia para uma estrutura
 // essa função roda antes da função main
 func init() {
-	fmt.Println("teste")
+	gob.Register(server.UserSessao{})
 }
 
 func createUseradmin(c *sql.DB) {

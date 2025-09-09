@@ -44,7 +44,7 @@ func (r *ColaboradorRepo) Getbyemail(ctx context.Context, email string) (Colab, 
 	query := `
 		SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades, senha
 		FROM colaborador
-		WHERE nome = ?
+		WHERE email = ?
 	`
 	err := r.db.QueryRowContext(ctx, query, email).
 		Scan(&c.ID, &c.CPF, &c.Nome, &c.Cargo, &c.Setor, &c.Status, &c.Email, &c.Ramal, &c.Habilidades, &c.Senha)

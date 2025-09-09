@@ -104,8 +104,8 @@ INSERT INTO colaborador (nome, cpf, cargo, setor, senha, status, email, ramal, h
 ('Maria Souza', '222.222.222-22', 'Analista de Segurança', 'Segurança', '$2y$10$mnopqrABCDEFGHIJKLMNopqrstuvWXYZabcdefghijkl12345', 'Ativo', 'maria@empresa.com', '102', 'Red Team, Pentest'),
 ('Ana Lima', '333.333.333-33', 'Suporte', 'Suporte', '$2y$10$qrstuvABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnop123456', 'Ativo', 'ana@empresa.com', '103', 'Atendimento, Helpdesk'),
 ('Carlos Pereira', '444.444.444-44', 'Gerente de Projetos', 'PMO', '$2y$10$uvwxyzABCDEFGHIJKLMNopqrstuvWXYZabcdefghijkl78901', 'Ativo', 'carlos@empresa.com', '104', 'Gestão, Scrum'),
-('Paulo Almeida', '555.555.555-55', 'Desenvolvedor', 'TI', '$2y$10$abcdefGHIJKLMNOPQRSTUVwxyz1234567890abcdefghijklmn', 'Ativo', 'paulo@empresa.com', '105', 'Java, Spring');
-
+('Paulo Almeida', '555.555.555-55', 'Desenvolvedor', 'TI', '$2y$10$abcdefGHIJKLMNOPQRSTUVwxyz1234567890abcdefghijklmn', 'Ativo', 'paulo@empresa.com', '105', 'Java, Spring'),
+('tiago','322.233.112-50','gestor','gestor','$2b$10$BfHJ84Z8E4/ZGwfFcsWSx.GzTw4jtdhV58n4WH2xKgUfB.GrA52du','Ativo','tiagodasilva@gmail.com','2131','nada');
 -- Projetos
 INSERT INTO projeto (nome, tipo, status, progresso, descricao) VALUES
 ('Sistema Interno', 'Software', 'Em Andamento', 20, 'Desenvolvimento do sistema interno da empresa'),

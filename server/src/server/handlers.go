@@ -46,6 +46,7 @@ func (h *Handlers) Loginbyemail(w writer, r resquest) {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
 		return
 	}
+	fmt.Println(creds)
 	usercontroller := controlers.NewColaboradorcontroller(h.conn)
 	user, err := usercontroller.Loginbyemail(creds.Email, creds.Senha)
 	if err != nil {
@@ -58,12 +59,11 @@ func (h *Handlers) Loginbyemail(w writer, r resquest) {
 		Cargo: user.Cargo,
 	}
 	sessionManager.Put(r.Context(), "user", usersessao)
-	sessionID := sessionManager.Token(r.Context())
+	fmt.Printf("%+v\n", usersessao)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "ok",
 		"message": "Login efetuado com sucesso",
-		"session": sessionID,
 	})
 }
 

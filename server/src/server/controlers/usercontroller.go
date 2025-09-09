@@ -150,7 +150,6 @@ func (c *Colaboradorcontroller) Loginbyemail(email, pass string) (*colaborador.C
 	if err != nil {
 		return nil, fmt.Errorf("usuario não existe: %w", err)
 	}
-
 	// senha correta: primeiro hash do banco, depois senha digitada
 	err = bcrypt.CompareHashAndPassword([]byte(user.Senha), []byte(pass))
 	if err != nil {
