@@ -190,8 +190,13 @@ func (c *Colaboradorcontroller) loginbyemail(email, pass string) (*colaborador.C
 func (c *Colaboradorcontroller) Update(colab *colaborador.Colaborador) error {
 	userrepo := repositorios.NewColaboradorRepo(c.conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
 	defer cancel()
-	_, err := userrepo.Update(ctx, *colab)
+	user, err := userrepo.Getbyemail(ctx, colab.Email)
+	if err != nil {
+		return err
+	}
+	_, err = userrepo.Update(ctx, user)
 	if err != nil {
 		return err
 	}

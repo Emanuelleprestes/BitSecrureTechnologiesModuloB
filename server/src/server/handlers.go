@@ -72,7 +72,7 @@ func (h *Handlers) Getcolaboladores(w writer, r resquest) {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Println(w.Write(data))
+	w.Write(data)
 }
 
 func (h *Handlers) Createcolaborador(w writer, r resquest) {
@@ -115,4 +115,48 @@ func (h *Handlers) GetcolaboladoresByName(w writer, r resquest) {
 }
 
 func (h *Handlers) Updatecolaborador(w writer, r resquest) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
+		return
+	}
+	var colaborador colaborador.Colaborador
+	controlercolaborador := controlers.NewColaboradorcontroller(h.conn)
+	err := json.NewDecoder(r.Body).Decode(&colaborador)
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Errorf("o json esta errado: %w", err).Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+	val := sessionManager.Get(r.Context(), "user")
+	user, ok := val.(UserSessao)
+	if !ok {
+		http.Error(
+			w,
+			fmt.Errorf("erro ao confimar o usuario: %v", ok).Error(),
+			http.StatusInternalServerError,
+		)
+	}
+	if user.Nome != colaborador.Nome && user.Cargo != "gestor" {
+		http.Error(
+			w,
+			fmt.Errorf("o usuario não pode modificar outros").Error(),
+			http.StatusUnauthorized,
+		)
+	}
+	err = controlercolaborador.Update(&colaborador)
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Errorf("erro ao modifcar o usuario: %w", err).Error(),
+			http.StatusInternalServerError,
+		)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"Status":  "200",
+		"message": "colaborador atualizar",
+	})
 }

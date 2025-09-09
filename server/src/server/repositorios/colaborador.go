@@ -128,11 +128,11 @@ func (r *ColaboradorRepo) Save(ctx context.Context, c *colaborador.Colaborador) 
 func (r *ColaboradorRepo) Update(ctx context.Context, c Colab) (Colab, error) {
 	query := `
 		UPDATE colaborador
-		SET cpf=?, nome=?, cargo=?, setor=?, status=?, email=?, ramal=?, habilidades=?
+		SET nome=?, cargo=?, setor=?, status=?, email=?, ramal=?, habilidades=?
 		WHERE id_colaborador=?
 	`
 	_, err := r.db.ExecContext(ctx, query,
-		c.CPF, c.Nome, c.Cargo, c.Setor, c.Status,
+		c.Nome, c.Cargo, c.Setor, c.Status,
 		c.Email, c.Ramal, c.Habilidades, c.ID,
 	)
 	if err != nil {
