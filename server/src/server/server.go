@@ -19,7 +19,18 @@ type Server struct {
 	handle *Handlers
 }
 
-func funchandcle(
+func auth(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		val := sessionManager.Get(r.Context(), "user")
+		if val == nil {
+			http.Error(w, "sem permissão para acessar essa página", http.StatusUnauthorized)
+			return
+		}
+		f(w, r)
+	}
+}
+
+func auth_priv(
 	f http.HandlerFunc,
 	privilegio []string,
 ) http.HandlerFunc {
@@ -50,11 +61,11 @@ func funchandcle(
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
 	r.Route("/colaboradores", func(r chi.Router) {
-		r.Get("/", funchandcle(s.handle.Getcolaboladores, []string{"gestor", "adm"}))
+		r.Get("/", auth_priv(s.handle.Getcolaboladores, []string{"gestor", "adm"}))
 		r.Get("/{name}", s.handle.GetcolaboladoresByName)
-		r.Post("/", funchandcle(s.handle.Createcolaborador, []string{"gestor", "adm"}))
-		r.Put("/", s.handle.Updatecolaborador)
-		r.Delete("/{name}", funchandcle(s.handle.Deletecolaborador, []string{"gestor", "adm"}))
+		r.Post("/", auth_priv(s.handle.Createcolaborador, []string{"gestor", "adm"}))
+		r.Put("/", auth(s.handle.Updatecolaborador))
+		r.Delete("/{name}", auth_priv(s.handle.Deletecolaborador, []string{"gestor", "adm"}))
 	})
 }
 
