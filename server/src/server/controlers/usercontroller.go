@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -58,7 +59,12 @@ func iscpf(cpf string) bool {
 			if idx >= 11 {
 				return false
 			}
-			d[idx] = int(r - '0')
+			numb, err := strconv.Atoi(string(r))
+			if err != nil {
+				fmt.Println(fmt.Errorf("não faz sentindo este erro: %w", err))
+				return false
+			}
+			d[idx] = numb
 			idx++
 		}
 	}
@@ -187,12 +193,19 @@ func (c *Colaboradorcontroller) loginbyemail(email, pass string) (*colaborador.C
 	return &user, nil
 }
 
+// bloco de codigo
 func (c *Colaboradorcontroller) Update(colab *colaborador.Colaborador) error {
+	// criando uma instancia do userrepo
+	// passando como agurmento para o nova instancia a conexão com o banco de dados
 	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	// criando um contexto, isso gera um contexto e um função cancel()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-
+	// defer significa depois que não esta mais sendo usado use o comando|função
 	defer cancel()
+	// buscando o usuario via email e passando o ctx
+	// a função volta uma referencia *colaborador.Colaborqador e um erro=err
 	user, err := userrepo.Getbyemail(ctx, colab.Email)
+	// verificação do err
 	if err != nil {
 		return err
 	}
