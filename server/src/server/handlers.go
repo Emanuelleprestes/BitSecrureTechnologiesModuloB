@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/controlers"
+	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/models/colaborador"
 )
 
 type UserSessao struct {
@@ -26,10 +27,6 @@ type Handlers struct {
 }
 
 func (h *Handlers) Loginbyemail(w writer, r resquest) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
-		return
-	}
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
 		return
@@ -46,7 +43,6 @@ func (h *Handlers) Loginbyemail(w writer, r resquest) {
 		http.Error(w, "JSON inválido", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(creds)
 	usercontroller := controlers.NewColaboradorcontroller(h.conn)
 	user, err := usercontroller.Loginbyemail(creds.Email, creds.Senha)
 	if err != nil {
@@ -59,7 +55,6 @@ func (h *Handlers) Loginbyemail(w writer, r resquest) {
 		Cargo: user.Cargo,
 	}
 	sessionManager.Put(r.Context(), "user", usersessao)
-	fmt.Printf("%+v\n", usersessao)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "ok",
@@ -82,8 +77,35 @@ func (h *Handlers) Getcolaboladores(w writer, r resquest) {
 	fmt.Println(w.Write(data))
 }
 
-func (h *Handlers) Savecola(w writer, r resquest) {
-	fmt.Println(w.Write([]byte("")))
+func (h *Handlers) Createcolaborador(w writer, r resquest) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
+		return
+	}
+	var colaborador colaborador.Colaborador
+	controlercolaborador := controlers.NewColaboradorcontroller(h.conn)
+	err := json.NewDecoder(r.Body).Decode(&colaborador)
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Errorf("o json esta errado: %w", err).Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+	err = controlercolaborador.Create(&colaborador)
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Errorf("erro ao criar o usuario: %w", err).Error(),
+			http.StatusInternalServerError,
+		)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"Status":  "200",
+		"message": "colaborador criado",
+	})
 }
 
 func (h *Handlers) Deletecolaborador(w writer, r resquest) {

@@ -109,12 +109,12 @@ func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
 // Save insere um novo colaborador
 func (r *ColaboradorRepo) Save(ctx context.Context, c *colaborador.Colaborador) (Colab, error) {
 	query := `
-		INSERT INTO colaborador (cpf, nome, cargo, setor, status, email, ramal, habilidades)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO colaborador (cpf, nome, cargo, setor, status, email, ramal, habilidades,senha)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
 	`
 	result, err := r.db.ExecContext(ctx, query,
 		c.CPF, c.Nome, c.Cargo, c.Setor,
-		c.Status, c.Email, c.Ramal, c.Habilidades,
+		c.Status, c.Email, c.Ramal, c.Habilidades, c.Senha,
 	)
 	if err != nil {
 		return Colab{}, fmt.Errorf("erro ao salvacaborador: %w", err)

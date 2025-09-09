@@ -133,6 +133,7 @@ func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	// aqui assim em outras linguagens eu volto a senha modificada para string e mudo a string original servida apenas para gerar a senha nova
 	// e poder criar novas instacias direto do json sem problemas com o hash, que aqui vai ser usado
 	colab.Senha = string(hash)
+	fmt.Println(colab)
 	// aqui agora mando para o metodo do repositorio do colaborador para criar o usuario
 	_, err = userrepo.Save(ctx, colab)
 	if err != nil {

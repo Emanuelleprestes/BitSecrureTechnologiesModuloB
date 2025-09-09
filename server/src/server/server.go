@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
@@ -20,7 +21,7 @@ type Server struct {
 
 func funchandcle(
 	f http.HandlerFunc,
-	privilegio string,
+	privilegio []string,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		val := sessionManager.Get(r.Context(), "user")
@@ -34,14 +35,13 @@ func funchandcle(
 			http.Error(w, "sessão inválida", http.StatusUnauthorized)
 			return
 		}
-
-		if privilegio != userusersessao.Cargo {
+		if slices.Contains(privilegio, userusersessao.Cargo) {
+			f(w, r)
+			return
+		} else {
 			http.Error(w, "acesso negado", http.StatusForbidden)
 			return
 		}
-
-		// se passou nas validações, chama o handler original
-		f(w, r)
 	}
 }
 
@@ -50,11 +50,11 @@ func funchandcle(
 // função que vai configurar as rotas, middleware e as handle functions para a mesma
 func (s *Server) routesforcolabolador(r *chi.Mux) {
 	r.Route("/colaboradores", func(r chi.Router) {
-		r.Get("/", funchandcle(s.handle.Getcolaboladores, "gestor"))
+		r.Get("/", funchandcle(s.handle.Getcolaboladores, []string{"gestor", "adm"}))
 		r.Get("/{name}", s.handle.GetcolaboladoresByName)
-		r.Post("/", funchandcle(s.handle.Savecola, "gestor"))
+		r.Post("/", funchandcle(s.handle.Createcolaborador, []string{"gestor", "adm"}))
 		r.Put("/", s.handle.Updatecolaborador)
-		r.Delete("/{name}", funchandcle(s.handle.Deletecolaborador, "gestor"))
+		r.Delete("/{name}", funchandcle(s.handle.Deletecolaborador, []string{"gestor", "adm"}))
 	})
 }
 
