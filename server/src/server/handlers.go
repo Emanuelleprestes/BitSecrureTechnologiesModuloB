@@ -13,6 +13,7 @@ import (
 type UserSessao struct {
 	ID    int    `json:"id"`
 	Nome  string `json:"nome"`
+	Email string `json:"email"`
 	Cargo string `json:"cargo"`
 }
 
@@ -22,11 +23,48 @@ type (
 	resquest = *http.Request
 )
 
-type Handlers struct {
+type colaHandler struct {
 	conn *sql.DB
 }
 
-func (h *Handlers) Login(w writer, r resquest) {
+func (h *colaHandler) Me(w writer, r resquest) {
+	user, ok := sessionManager.Get(r.Context(), "user").(UserSessao)
+	if !ok {
+		http.Error(
+			w,
+			fmt.Errorf("erro ao confimar o usuario: %v", ok).Error(),
+			http.StatusInternalServerError,
+		)
+	}
+	fmt.Println(user)
+	userecon := controlers.NewColaboradorcontroller(h.conn)
+	userdb, err := userecon.Getbyemail(user.Email)
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Errorf("não atorizado a entrar: %w", err).Error(),
+			http.StatusUnauthorized,
+		)
+		return
+	}
+	userdb.ID = 0
+	userdb.Senha = ""
+	json.NewEncoder(w).Encode(map[string]any{
+		"status": "200",
+		"message": map[string]string{
+			"cpf":        userdb.CPF,
+			"nome":       userdb.Nome,
+			"cargo":      userdb.Cargo,
+			"setor":      userdb.Setor,
+			"status":     userdb.Status,
+			"email":      userdb.Email,
+			"ramal":      userdb.Ramal,
+			"habilidade": userdb.Habilidades,
+		},
+	})
+}
+
+func (h *colaHandler) Login(w writer, r resquest) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
 		return
@@ -47,9 +85,11 @@ func (h *Handlers) Login(w writer, r resquest) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+	fmt.Println("login: ", user)
 	usersessao := UserSessao{
 		ID:    user.ID,
 		Nome:  user.Nome,
+		Email: user.Email,
 		Cargo: user.Cargo,
 	}
 	sessionManager.Put(r.Context(), "user", usersessao)
@@ -60,7 +100,7 @@ func (h *Handlers) Login(w writer, r resquest) {
 	})
 }
 
-func (h *Handlers) Getcolaboladores(w writer, r resquest) {
+func (h *colaHandler) Getcolaboladores(w writer, r resquest) {
 	colabcontroller := controlers.NewColaboradorcontroller(h.conn)
 	colaboradores, err := colabcontroller.Getall()
 	if err != nil {
@@ -75,7 +115,7 @@ func (h *Handlers) Getcolaboladores(w writer, r resquest) {
 	w.Write(data)
 }
 
-func (h *Handlers) Createcolaborador(w writer, r resquest) {
+func (h *colaHandler) Createcolaborador(w writer, r resquest) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
 		return
@@ -106,15 +146,15 @@ func (h *Handlers) Createcolaborador(w writer, r resquest) {
 	})
 }
 
-func (h *Handlers) Deletecolaborador(w writer, r resquest) {
+func (h *colaHandler) Deletecolaborador(w writer, r resquest) {
 	fmt.Println(w.Write([]byte("")))
 }
 
-func (h *Handlers) GetcolaboladoresByName(w writer, r resquest) {
+func (h *colaHandler) GetcolaboladoresByName(w writer, r resquest) {
 	fmt.Println(w.Write([]byte("")))
 }
 
-func (h *Handlers) Updatecolaborador(w writer, r resquest) {
+func (h *colaHandler) Updatecolaborador(w writer, r resquest) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Content-Type deve ser application/json", http.StatusUnsupportedMediaType)
 		return

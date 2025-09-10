@@ -16,15 +16,19 @@ import (
 	"github.com/Emanuelleprestes/InfoSmart-Solutions.git/server/repositorios"
 )
 
+// neste objeto vai ficar a regra de negocios do colaborador
+// isso quer dizer que todo tipo de verificação do colaborador vai ser implementando aqui
 type Colaboradorcontroller struct {
 	conn *sql.DB
 }
 
+// isso seria o equivalente a new constructor em outras linguagens
+// essa função serve como um iniciador de instacia do objeto/class
+// volta uma referencia para o local da memoria
 func NewColaboradorcontroller(c *sql.DB) *Colaboradorcontroller {
 	return &Colaboradorcontroller{conn: c}
 }
 
-// 0 seria o null para inteiro, e nil seria o null para referencia
 func (c *Colaboradorcontroller) Newuser(
 	cpf, nome, cargo, setor, status, email, ramal, habilidades string,
 ) (*colaborador.Colaborador, error) {
@@ -114,7 +118,20 @@ func (c *Colaboradorcontroller) Getall() (*[]colaborador.Colaborador, error) {
 	return userrepo.Getall(ctx)
 }
 
-// por vai so isso para validação das tabelas
+// aqui teria metodos para validar email e etc, ou criar toda uma estrutura para isso tipo o php com laravel
+func (c *Colaboradorcontroller) Getbyemail(email string) (*colaborador.Colaborador, error) {
+	userrepo := repositorios.NewColaboradorRepo(c.conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	user, err := userrepo.Getbyemail(ctx, email)
+	fmt.Println("controller: ", user)
+	if err != nil {
+		return nil, errors.New("usuario não encotrnando no banco de dados")
+	}
+	return &user, nil
+}
+
+// esta função e para criar o colaborador
 func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	// aqui eu estou iniciando um novo repositorio passado como referencia a a conexão com o db
 	userrepo := repositorios.NewColaboradorRepo(c.conn)

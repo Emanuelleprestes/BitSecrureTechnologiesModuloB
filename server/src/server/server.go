@@ -16,7 +16,7 @@ import (
 type Server struct {
 	ip     string
 	conn   *sql.DB
-	handle *Handlers
+	handle *colaHandler
 }
 
 func auth(f http.HandlerFunc) http.HandlerFunc {
@@ -122,6 +122,7 @@ func (s *Server) routerforautentificacao(_ *chi.Mux) {
 func (s *Server) config() *chi.Mux {
 	r := chi.NewMux()
 	r.Post("/login", s.handle.Login)
+	r.Get("/me", s.handle.Me)
 	s.routesforcolabolador(r)
 	s.routerforautentificacao(r)
 	s.routerforbackup(r)
@@ -135,7 +136,7 @@ func (s *Server) config() *chi.Mux {
 
 // função que inicia um objeto e volta a referencia dele
 func Newserver(ip string, conn *sql.DB) *Server {
-	Handlers := Handlers{conn: conn}
+	Handlers := colaHandler{conn: conn}
 	return &Server{
 		ip,
 		conn,
