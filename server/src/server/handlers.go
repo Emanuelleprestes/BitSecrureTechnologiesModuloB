@@ -107,6 +107,10 @@ func (h *colaHandler) Getcolaboladores(w writer, r resquest) {
 		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	for i := range *colaboradores {
+		colab := &(*colaboradores)[i]
+		colab.ID = 0
+	}
 	data, err := json.Marshal(colaboradores)
 	if err != nil {
 		fmt.Println(err)
