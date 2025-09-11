@@ -111,7 +111,7 @@ func iscpf(cpf string) bool {
 	return dv1 == d[9] && dv2 == d[10]
 }
 
-func (c *Colaboradorcontroller) Getall() (*[]colaborador.Colaborador, error) {
+func (c *Colaboradorcontroller) Getall() ([]colaborador.Colaborador, error) {
 	userrepo := repositorios.NewColaboradorRepo(c.conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -124,7 +124,6 @@ func (c *Colaboradorcontroller) Getbyemail(email string) (*colaborador.Colaborad
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	user, err := userrepo.Getbyemail(ctx, email)
-	fmt.Println("controller: ", user)
 	if err != nil {
 		return nil, errors.New("usuario não encotrnando no banco de dados")
 	}
@@ -157,7 +156,6 @@ func (c *Colaboradorcontroller) Create(colab *colaborador.Colaborador) error {
 	// aqui assim em outras linguagens eu volto a senha modificada para string e mudo a string original servida apenas para gerar a senha nova
 	// e poder criar novas instacias direto do json sem problemas com o hash, que aqui vai ser usado
 	colab.Senha = string(hash)
-	fmt.Println(colab)
 	// aqui agora mando para o metodo do repositorio do colaborador para criar o usuario
 	_, err = userrepo.Save(ctx, colab)
 	if err != nil {

@@ -75,7 +75,7 @@ func (r *ColaboradorRepo) Getbyname(ctx context.Context, name string) (Colab, er
 	return c, nil
 }
 
-func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
+func (r *ColaboradorRepo) Getall(ctx context.Context) ([]Colab, error) {
 	query := `
         SELECT id_colaborador, cpf, nome, cargo, setor, status, email, ramal, habilidades
         FROM colaborador
@@ -84,7 +84,6 @@ func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar colaboradores: %w", err)
 	}
-	fmt.Println(rows)
 	defer rows.Close() // importante: fecha o cursor
 	var colaboradores []Colab
 	for rows.Next() {
@@ -103,7 +102,7 @@ func (r *ColaboradorRepo) Getall(ctx context.Context) (*[]Colab, error) {
 		return nil, fmt.Errorf("erro ao iterar colaboradores: %w", err)
 	}
 
-	return &colaboradores, nil
+	return colaboradores, nil
 }
 
 // Save insere um novo colaborador
